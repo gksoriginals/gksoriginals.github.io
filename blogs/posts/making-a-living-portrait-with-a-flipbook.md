@@ -61,10 +61,10 @@ The hardest part was learning to take small visual problems seriously.
 
 The final page also respects `prefers-reduced-motion`, so the portrait remains still for people who ask their device to minimise animation.
 
-## What I am turning into a coding-agent skill
+## The skill: Animated Portrait Flipbook
 
-This was repeatable enough to package as a skill. Its job is not “make an image move.” Its job is to preserve a visual world while adding just enough motion to suggest a character.
+I turned this workflow into [Animated Portrait Flipbook](https://github.com/gksoriginals/animated-portrait-flipbook), a reusable coding-agent skill. Its job is not “make an image move.” Its job is to preserve a visual world while adding just enough motion to suggest a character.
 
-The operating rules are now clear: begin from one master composition, prefer a locked sprite sheet, swap full frames rather than live fragments, keep page decorations outside the animated stack, preserve aspect ratio, validate at the final crop, and publish only after watching a full loop.
+The operating rules are now encoded in the skill: begin from one master composition, prefer a locked sprite sheet, swap full frames rather than live fragments, keep page decorations outside the animated stack, preserve aspect ratio, validate at the final crop, and publish only after watching a full loop.
 
-That is the bit I want to keep. The portrait is a small piece of magic; the skill will be the recipe for making that magic hold together.
+That is the bit I wanted to keep. The portrait is a small piece of magic; [the skill](https://github.com/gksoriginals/animated-portrait-flipbook) is the recipe for making that magic hold together.
