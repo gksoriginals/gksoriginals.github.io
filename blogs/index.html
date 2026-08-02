@@ -1,1 +1,112 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Writing by Gopi."><title>Blogs — GKS Originals</title><link rel="stylesheet" href="../section.css"></head><body><main class="page"><a class="back" href="../">⌂ Home</a><h1>Blogs</h1><p class="intro">Writing about technology, ideas, experiments, and the things I am still working out.</p><section class="list" aria-label="Writing"><a class="item" href="https://substack.com/@gksoriginals"><h2>Substack</h2><p>Read my current writing on Substack.</p></a></section></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Writing by Gopi on technology, learning, and original experiments.">
+  <title>Blogs — GKS Originals</title>
+  <link rel="stylesheet" href="blog.css">
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="../">⌂ Home</a>
+    <header class="masthead">
+      <p class="kicker">GKS Originals</p>
+      <h1>Notes from the<br><span>workbench.</span></h1>
+      <p>Writing about technology, ideas, experiments, and the things I am still working out.</p>
+    </header>
+
+    <section class="writing" aria-labelledby="writing-heading">
+      <div class="section-label"><span>✎</span><h2 id="writing-heading">Writing</h2></div>
+      <div id="post-list" class="post-list" aria-live="polite"></div>
+    </section>
+
+    <article id="article" class="article" hidden aria-live="polite"></article>
+  </main>
+
+  <script src="../assets/vendor/marked.umd.js"></script>
+  <script src="../assets/vendor/mermaid.min.js"></script>
+  <script>
+    const list = document.querySelector('#post-list');
+    const article = document.querySelector('#article');
+    const parameters = new URLSearchParams(window.location.search);
+    const requestedSlug = parameters.get('post');
+
+    function escapeHtml(value) {
+      const element = document.createElement('span');
+      element.textContent = value;
+      return element.innerHTML;
+    }
+
+    function renderList(posts) {
+      if (!posts.length) {
+        list.innerHTML = '<p class="empty-note">The first note is being made right now.</p>';
+        return;
+      }
+      list.innerHTML = posts.map((post) => `
+        <a class="post-card" href="?post=${encodeURIComponent(post.slug)}">
+          <p class="post-date">${escapeHtml(post.date)}</p>
+          <h3>${escapeHtml(post.title)}</h3>
+          <p>${escapeHtml(post.description)}</p>
+          <span class="read-more">Read note →</span>
+        </a>
+      `).join('');
+    }
+
+    async function renderMermaid() {
+      const diagrams = [...article.querySelectorAll('pre > code.language-mermaid')];
+      if (!diagrams.length) return;
+      diagrams.forEach((code) => {
+        const diagram = document.createElement('div');
+        diagram.className = 'mermaid';
+        diagram.textContent = code.textContent;
+        code.parentElement.replaceWith(diagram);
+      });
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#ffdc77', primaryTextColor: '#292721', primaryBorderColor: '#292721',
+          lineColor: '#292721', secondaryColor: '#c8ece2', tertiaryColor: '#e4d8f7',
+          fontFamily: 'Avenir Next, Avenir, sans-serif'
+        }
+      });
+      await mermaid.run({ nodes: article.querySelectorAll('.mermaid') });
+    }
+
+    async function renderPost(post) {
+      const response = await fetch(`posts/${encodeURIComponent(post.slug)}.md`);
+      if (!response.ok) throw new Error('That note could not be found.');
+      const markdown = await response.text();
+      article.hidden = false;
+      article.innerHTML = `
+        <a class="article-back" href="./">← All notes</a>
+        <p class="post-date">${escapeHtml(post.date)}</p>
+        <h2>${escapeHtml(post.title)}</h2>
+        <p class="article-description">${escapeHtml(post.description)}</p>
+        <div class="article-body">${marked.parse(markdown, { gfm: true })}</div>
+      `;
+      await renderMermaid();
+      article.scrollIntoView({ block: 'start' });
+    }
+
+    async function start() {
+      try {
+        const response = await fetch('posts.json');
+        if (!response.ok) throw new Error('The writing list could not be loaded.');
+        const posts = await response.json();
+        renderList(posts);
+        if (requestedSlug) {
+          const post = posts.find((item) => item.slug === requestedSlug);
+          if (!post) throw new Error('That note could not be found.');
+          await renderPost(post);
+        }
+      } catch (error) {
+        list.innerHTML = `<p class="empty-note">${escapeHtml(error.message)}</p>`;
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
