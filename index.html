@@ -19,8 +19,9 @@
     .about h2 { margin:0 0 7px; font-size:2rem; }
     .about p { margin:0; font-size:1.05rem; line-height:1.35; }
     .links { display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
-    .link { display:inline-block; padding:12px 16px; border:2.5px solid var(--ink); box-shadow:4px 5px 0 var(--ink); color:var(--ink); background:var(--sun); font:700 1.2rem/1 "Bradley Hand", "Comic Sans MS", cursive; text-decoration:none; }
-    .link.secondary { background:var(--mint); }
+    .link { display:inline-flex; align-items:center; gap:9px; padding:12px 16px; border:2.5px solid var(--ink); box-shadow:4px 5px 0 var(--ink); color:var(--ink); background:var(--sun); font:700 1.2rem/1 "Bradley Hand", "Comic Sans MS", cursive; text-decoration:none; }
+    .link.secondary { background:var(--mint); }.link.lilac { background:var(--lilac); }.link.paper { background:#fffdf6; }
+    .icon { width:20px; height:20px; display:inline-grid; place-items:center; font-family:system-ui,sans-serif; font-size:1.15rem; }.github-icon { width:20px; height:20px; }
     .link:focus-visible { outline:3px solid var(--coral); outline-offset:4px; }
     .portrait-wrap { position:relative; justify-self:end; width:min(100%, 430px); padding:15px; border:2.5px solid var(--ink); background:#fffdf6; box-shadow:7px 8px 0 rgba(41,39,33,.15); transform:rotate(1.5deg); }
     .portrait-wrap::before { content:""; position:absolute; width:110px; height:32px; background:var(--coral); top:-17px; left:50%; transform:translateX(-50%) rotate(-4deg); opacity:.75; }
@@ -39,9 +40,11 @@
         <h2 id="what-i-do">I make original things.</h2>
         <p>I work at the intersection of AI, accessibility, and real-world usefulness. As a Founding Engineer at Ally for Mental Health Foundation, I build technology with care; beyond that, I explore experimental products, tech-community events, and ways to make complex ideas easier to learn.</p>
       </section>
-      <nav class="links" aria-label="Find my work">
-        <a class="link" href="https://github.com/gksoriginals">GitHub →</a>
-        <a class="link secondary" href="https://gksoriginals.github.io/lbs-full-stack-ai/">Explore the AI course →</a>
+      <nav class="links" aria-label="Explore Gopi's work">
+        <a class="link" href="projects/"><img class="github-icon" src="https://github.githubassets.com/favicons/favicon.svg" alt="" aria-hidden="true">Projects</a>
+        <a class="link secondary" href="courses/"><span class="icon" aria-hidden="true">✦</span>Courses</a>
+        <a class="link lilac" href="blogs/"><span class="icon" aria-hidden="true">✎</span>Blogs</a>
+        <a class="link paper" href="programs/"><span class="icon" aria-hidden="true">✺</span>Programs</a>
       </nav>
     </section>
     <figure class="portrait-wrap"><img class="portrait" src="assets/gopikrishnan-illustrated.png" alt="Illustrated portrait of Gopikrishnan Sasikumar"></figure>
