@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Writing by Gopi on technology, learning, and original experiments.">
+  <title>Blog — GKS Originals</title>
+  <link rel="stylesheet" href="blog.css">
+</head>
+<body>
+  <main class="page post-page">
+    <a class="back" href="./">← All blogs</a>
+    <article id="article" class="article" aria-live="polite"></article>
+  </main>
+
+  <script src="../assets/vendor/marked.umd.js"></script>
+  <script src="../assets/vendor/mermaid.min.js"></script>
+  <script>
+    const article = document.querySelector('#article');
+    const slug = new URLSearchParams(window.location.search).get('slug');
+
+    function escapeHtml(value) {
+      const element = document.createElement('span');
+      element.textContent = value;
+      return element.innerHTML;
+    }
+
+    async function renderMermaid() {
+      const diagrams = [...article.querySelectorAll('pre > code.language-mermaid')];
+      if (!diagrams.length) return;
+      diagrams.forEach((code) => {
+        const diagram = document.createElement('div');
+        diagram.className = 'mermaid';
+        diagram.textContent = code.textContent;
+        code.parentElement.replaceWith(diagram);
+      });
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#ffdc77', primaryTextColor: '#292721', primaryBorderColor: '#292721',
+          lineColor: '#292721', secondaryColor: '#c8ece2', tertiaryColor: '#e4d8f7',
+          fontFamily: 'Avenir Next, Avenir, sans-serif'
+        }
+      });
+      await mermaid.run({ nodes: article.querySelectorAll('.mermaid') });
+    }
+
+    async function start() {
+      try {
+        if (!slug) throw new Error('Choose a post from the blog list.');
+        const catalogResponse = await fetch('posts.json', { cache: 'no-store' });
+        if (!catalogResponse.ok) throw new Error('The blog list could not be loaded.');
+        const posts = await catalogResponse.json();
+        const post = posts.find((item) => item.slug === slug);
+        if (!post) throw new Error('That post could not be found.');
+
+        const markdownResponse = await fetch(`posts/${encodeURIComponent(post.slug)}.md`, { cache: 'no-store' });
+        if (!markdownResponse.ok) throw new Error('That post could not be loaded.');
+        const markdown = await markdownResponse.text();
+        document.title = `${post.title} — GKS Originals`;
+        article.innerHTML = `
+          <p class="post-date">${escapeHtml(post.date)}</p>
+          <h1>${escapeHtml(post.title)}</h1>
+          <p class="article-description">${escapeHtml(post.description)}</p>
+          <div class="article-body">${marked.parse(markdown, { gfm: true })}</div>
+        `;
+        await renderMermaid();
+      } catch (error) {
+        article.innerHTML = `<p class="empty-note">${escapeHtml(error.message)}</p>`;
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>

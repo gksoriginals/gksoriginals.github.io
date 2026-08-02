@@ -21,16 +21,17 @@
       <div id="post-list" class="post-list" aria-live="polite"></div>
     </section>
 
-    <article id="article" class="article" hidden aria-live="polite"></article>
+    <section class="elsewhere" aria-labelledby="elsewhere-heading">
+      <div class="section-label"><span>↗</span><h2 id="elsewhere-heading">Elsewhere</h2></div>
+      <a class="elsewhere-link" href="https://substack.com/@gksoriginals" target="_blank" rel="noreferrer">
+        <span>Substack</span>
+        <small>Notes and writing beyond this site</small>
+      </a>
+    </section>
   </main>
 
-  <script src="../assets/vendor/marked.umd.js"></script>
-  <script src="../assets/vendor/mermaid.min.js"></script>
   <script>
     const list = document.querySelector('#post-list');
-    const article = document.querySelector('#article');
-    const parameters = new URLSearchParams(window.location.search);
-    const requestedSlug = parameters.get('post');
 
     function escapeHtml(value) {
       const element = document.createElement('span');
@@ -44,63 +45,21 @@
         return;
       }
       list.innerHTML = posts.map((post) => `
-        <a class="post-card" href="?post=${encodeURIComponent(post.slug)}">
+        <a class="post-card" href="post.html?slug=${encodeURIComponent(post.slug)}">
           <p class="post-date">${escapeHtml(post.date)}</p>
           <h3>${escapeHtml(post.title)}</h3>
           <p>${escapeHtml(post.description)}</p>
-          <span class="read-more">Read note →</span>
+          <span class="read-more">Read post →</span>
         </a>
       `).join('');
     }
 
-    async function renderMermaid() {
-      const diagrams = [...article.querySelectorAll('pre > code.language-mermaid')];
-      if (!diagrams.length) return;
-      diagrams.forEach((code) => {
-        const diagram = document.createElement('div');
-        diagram.className = 'mermaid';
-        diagram.textContent = code.textContent;
-        code.parentElement.replaceWith(diagram);
-      });
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        themeVariables: {
-          primaryColor: '#ffdc77', primaryTextColor: '#292721', primaryBorderColor: '#292721',
-          lineColor: '#292721', secondaryColor: '#c8ece2', tertiaryColor: '#e4d8f7',
-          fontFamily: 'Avenir Next, Avenir, sans-serif'
-        }
-      });
-      await mermaid.run({ nodes: article.querySelectorAll('.mermaid') });
-    }
-
-    async function renderPost(post) {
-      const response = await fetch(`posts/${encodeURIComponent(post.slug)}.md`);
-      if (!response.ok) throw new Error('That note could not be found.');
-      const markdown = await response.text();
-      article.hidden = false;
-      article.innerHTML = `
-        <a class="article-back" href="./">← All notes</a>
-        <p class="post-date">${escapeHtml(post.date)}</p>
-        <h2>${escapeHtml(post.title)}</h2>
-        <p class="article-description">${escapeHtml(post.description)}</p>
-        <div class="article-body">${marked.parse(markdown, { gfm: true })}</div>
-      `;
-      await renderMermaid();
-      article.scrollIntoView({ block: 'start' });
-    }
-
     async function start() {
       try {
-        const response = await fetch('posts.json');
+        const response = await fetch('posts.json', { cache: 'no-store' });
         if (!response.ok) throw new Error('The writing list could not be loaded.');
         const posts = await response.json();
         renderList(posts);
-        if (requestedSlug) {
-          const post = posts.find((item) => item.slug === requestedSlug);
-          if (!post) throw new Error('That note could not be found.');
-          await renderPost(post);
-        }
       } catch (error) {
         list.innerHTML = `<p class="empty-note">${escapeHtml(error.message)}</p>`;
       }
